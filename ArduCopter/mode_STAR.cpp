@@ -6,7 +6,7 @@
  * Init and run calls for guided flight mode
  */
 // init - initialise guided controller
-bool ModeGuided::init(bool ignore_checks)
+bool STAR::init(bool ignore_checks)
 {
     // start in velaccel control mode
     velaccel_control_start();
@@ -22,57 +22,14 @@ bool ModeGuided::init(bool ignore_checks)
 
 // run - runs the guided controller
 // should be called at 100hz or more
-void ModeGuided::run()
+void STAR::run()
 {
-    // run pause control if the vehicle is paused
-    if (_paused) {
-        pause_control_run();
-        return;
-    }
-
-    // call the correct auto controller
-    switch (guided_mode) {
-
-    case SubMode::TakeOff:
-        // run takeoff controller
-        takeoff_run();
-        break;
-
-    case SubMode::WP:
-        // run waypoint controller
-        wp_control_run();
-        if (send_notification && wp_nav->reached_wp_destination()) {
-            send_notification = false;
-            gcs().send_mission_item_reached_message(0);
-        }
-        break;
-
-    case SubMode::Pos:
-        // run position controller
-        pos_control_run();
-        break;
-
-    case SubMode::Accel:
-        accel_control_run();
-        break;
-
-    case SubMode::VelAccel:
-        velaccel_control_run();
-        break;
-
-    case SubMode::PosVelAccel:
-        posvelaccel_control_run();
-        break;
-
-    case SubMode::Angle:
-        angle_control_run();
-        break;
-    }
+pos_control_start()
  }
 
 
 // initialise position controller
-void ModeGuided::pva_control_start()
+void STAR::pva_control_start()
 {
     // initialise horizontal speed, acceleration
     pos_control->set_max_speed_accel_xy(wp_nav->get_default_speed_xy(), wp_nav->get_wp_acceleration());
@@ -94,7 +51,7 @@ void ModeGuided::pva_control_start()
 }
 
 // initialise guided mode's position controller
-void ModeGuided::pos_control_start()
+void STAR::pos_control_start()
 {
     // set to position control mode
     guided_mode = SubMode::Pos;
