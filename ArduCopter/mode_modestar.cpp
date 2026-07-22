@@ -6,7 +6,7 @@
  * Init and run calls for guided flight mode
  */
 // init - initialise guided controller
-bool STAR::init(bool ignore_checks)
+bool modestar::init(bool ignore_checks)
 {
     // start in velaccel control mode
     velaccel_control_start();
@@ -22,14 +22,14 @@ bool STAR::init(bool ignore_checks)
 
 // run - runs the guided controller
 // should be called at 100hz or more
-void STAR::run()
+void modestar::run()
 {
 pos_control_start()
  }
 
 
 // initialise position controller
-void STAR::pva_control_start()
+void modestar::pva_control_start()
 {
     // initialise horizontal speed, acceleration
     pos_control->set_max_speed_accel_xy(wp_nav->get_default_speed_xy(), wp_nav->get_wp_acceleration());
@@ -51,7 +51,7 @@ void STAR::pva_control_start()
 }
 
 // initialise guided mode's position controller
-void STAR::pos_control_start()
+void modestar::pos_control_start()
 {
     // set to position control mode
     guided_mode = SubMode::Pos;
