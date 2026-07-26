@@ -8,16 +8,14 @@
 // init - initialise guided controller
 bool modestar::init(bool ignore_checks)
 {
-    // start in velaccel control mode
-    velaccel_control_start();
-    guided_vel_target_cms.zero();
-    guided_accel_target_cmss.zero();
-    send_notification = false;
-
-    // clear pause state when entering guided mode
-    _paused = false;
-
+    if(position_ok()||ignore_checks){
+    auto_yaw.set_mode_to_default(false);
+    // start in position control mode
+    pos_control_start();
     return true;
+}else{
+    return false;
+}
 }
 
 // run - runs the guided controller
@@ -53,9 +51,9 @@ void modestar::pva_control_start()
 // initialise guided mode's position controller
 void modestar::pos_control_start()
 {
-    // set to position control mode
-    guided_mode = SubMode::Pos;
-
-    // initialise position controller
-    pva_control_start();
+    wp_nav->wp_and_spline_init();
+    Vector3f stopping_point;
+    wp_nav->get_wp_stopping_point(stopping_point);
+    wp_nav->set_wp_destination(stopping_point,false);
+    auto_yaw.set_mode_to_default(false);
 }
