@@ -1223,8 +1223,8 @@ public:
     bool in_guided_mode() const override { return true; }
 protected:
 
-    const char *name() const override { return "GUIDED"; }
-    const char *name4() const override { return "GUID"; }
+    const char *name() const override { return "MODESTAR"; }
+    const char *name4() const override { return "MODESTAR"; }
 
     uint32_t wp_distance() const override;
     int32_t wp_bearing() const override;
@@ -1232,45 +1232,10 @@ protected:
 
 private:
 
-    // enum for GUID_OPTIONS parameter
-    enum class Option : uint32_t {
-        AllowArmingFromTX   = (1U << 0),
-        // this bit is still available, pilot yaw was mapped to bit 2 for symmetry with auto
-        IgnorePilotYaw      = (1U << 2),
-        SetAttitudeTarget_ThrustAsThrust = (1U << 3),
-        DoNotStabilizePositionXY = (1U << 4),
-        DoNotStabilizeVelocityXY = (1U << 5),
-        WPNavUsedForPosControl = (1U << 6),
-        AllowWeatherVaning = (1U << 7)
-    };
-
-    // returns true if the Guided-mode-option is set (see GUID_OPTIONS)
-    bool option_is_enabled(Option option) const;
-
-    // wp controller
-    void wp_control_start();
-    void wp_control_run();
-
-    void pva_control_start();
     void pos_control_start();
-    void accel_control_start();
-    void velaccel_control_start();
-    void posvelaccel_control_start();
-    void takeoff_run();
     void pos_control_run();
-    void accel_control_run();
     void velaccel_control_run();
-    void pause_control_run();
-    void posvelaccel_control_run();
-    void set_yaw_state(bool use_yaw, float yaw_cd, bool use_yaw_rate, float yaw_rate_cds, bool relative_angle);
 
-    // controls which controller is run (pos or vel):
-    SubMode guided_mode = SubMode::TakeOff;
-    bool send_notification;     // used to send one time notification to ground station
-    bool takeoff_complete;      // true once takeoff has completed (used to trigger retracting of landing gear)
-
-    // guided mode is paused or not
-    bool _paused;
 };
 
 
