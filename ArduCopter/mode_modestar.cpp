@@ -10,6 +10,9 @@ bool modestar::init(bool ignore_checks)
 {
     if(position_ok()||ignore_checks){
     auto_yaw.set_mode_to_default(false);
+
+    path_num = 0;
+    generate_path();
     // start in position control mode
     pos_control_start();
     return true;
@@ -22,8 +25,15 @@ bool modestar::init(bool ignore_checks)
 // should be called at 100hz or more
 void modestar::run()
 {
+    if(path_num <6){
+        if(wp_nav->reached_wp_destination()){
+            path_num++;
+            wp_nav->set_wp_destination(path[path_num],false);
+        }
+    }
     pos_control_run()
- }
+    
+}
 
 void modestar::generate_path()
 {
@@ -41,9 +51,8 @@ void modestar::generate_path()
 void modestar::pos_control_start()
 {
     wp_nav->wp_and_spline_init();
-    Vector3f stopping_point;
-    wp_nav->get_wp_stopping_point(stopping_point);
-    wp_nav->set_wp_destination(stopping_point,false);
+
+    wp_nav->set_wp_destination(path[0],false);
     auto_yaw.set_mode_to_default(false);
 }
 
