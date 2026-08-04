@@ -31,7 +31,7 @@ void modestar::run()
             wp_nav->set_wp_destination(path[path_num],false);
         }
     }
-    pos_control_run()
+    pos_control_run();
     
 }
 
