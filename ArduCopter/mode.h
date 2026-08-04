@@ -1231,7 +1231,9 @@ protected:
     float crosstrack_error() const override;
 
 private:
-
+    Vector3f path[10];
+    int path_num;
+    void generate_path();
     void pos_control_start();
     void pos_control_run();
     void velaccel_control_run();
