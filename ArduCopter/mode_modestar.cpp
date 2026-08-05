@@ -8,7 +8,7 @@
 // init - initialise guided controller
 bool modestar::init(bool ignore_checks)
 {
-    if(position_ok()||ignore_checks){
+    if(copter.position_ok()||ignore_checks){
     auto_yaw.set_mode_to_default(false);
 
     path_num = 0;
@@ -100,3 +100,4 @@ void modestar::pos_control_run()
     // call attitude controller with auto yaw
     attitude_control->input_thrust_vector_heading(pos_control->get_thrust_vector(), auto_yaw.get_heading());
 }
+#endif
