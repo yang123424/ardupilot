@@ -1076,7 +1076,7 @@ private:
     ModeTurtle mode_turtle;
 #endif
 #if MODE_MODESTAR_ENABLED
-    ModeModeStar mode_modestar;
+    modestar mode_modestar;
 #endif
 
     // mode.cpp

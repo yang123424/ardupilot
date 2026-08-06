@@ -1,24 +1,25 @@
 #include "Copter.h"
 
-#if MODE_GUIDED_ENABLED
+#if MODE_MODESTAR_ENABLED
 
 /*
- * Init and run calls for guided flight mode
+ * Init and run calls for modestar flight mode
+ * Files a five-pointed star pattern around the current position
  */
-// init - initialise guided controller
+// init - initialise modestar controller
 bool modestar::init(bool ignore_checks)
 {
-    if(copter.position_ok()||ignore_checks){
-    auto_yaw.set_mode_to_default(false);
+    if (copter.position_ok() || ignore_checks) {
+        auto_yaw.set_mode_to_default(false);
 
-    path_num = 0;
-    generate_path();
-    // start in position control mode
-    pos_control_start();
-    return true;
-}else{
-    return false;
-}
+        path_num = 0;
+        generate_path();
+        // start in position control mode
+        pos_control_start();
+        return true;
+    } else {
+        return false;
+    }
 }
 
 // run - runs the guided controller
@@ -65,39 +66,41 @@ void modestar::pos_control_run()
         return;
     }
 
-    // calculate terrain adjustments
-    float terr_offset = 0.0f;
-    if (guided_pos_terrain_alt && !wp_nav->get_terrain_offset(terr_offset)) {
-        // failure to set destination can only be because of missing terrain data
-        copter.failsafe_terrain_on_event();
-        return;
-    }
-
     // set motors to full range
     motors->set_desired_spool_state(AP_Motors::DesiredSpoolState::THROTTLE_UNLIMITED);
 
-    // send position and velocity targets to position controller
-    guided_accel_target_cmss.zero();
-    guided_vel_target_cms.zero();
+    // run waypoint controller - advances along the star path and feeds
+    // position/velocity targets into the position controller
+    wp_nav->update_wpnav();
 
-    // stop rotating if no updates received within timeout_ms
-    if (millis() - update_time_ms > get_timeout_ms()) {
-        if ((auto_yaw.mode() == AutoYaw::Mode::RATE) || (auto_yaw.mode() == AutoYaw::Mode::ANGLE_RATE)) {
-            auto_yaw.set_mode(AutoYaw::Mode::HOLD);
-        }
-    }
-
-    float pos_offset_z_buffer = 0.0; // Vertical buffer size in m
-    if (guided_pos_terrain_alt) {
-        pos_offset_z_buffer = MIN(copter.wp_nav->get_terrain_margin() * 100.0, 0.5 * fabsF(guided_pos_target_cm.z));
-    }
-    pos_control->input_pos_xyz(guided_pos_target_cm, terr_offset, pos_offset_z_buffer);
-
-    // run position controllers
-    pos_control->update_xy_controller();
+    // WP_Nav has set the vertical position control targets
     pos_control->update_z_controller();
 
     // call attitude controller with auto yaw
     attitude_control->input_thrust_vector_heading(pos_control->get_thrust_vector(), auto_yaw.get_heading());
+}
+
+// allows arming with this mode selected
+bool modestar::allows_arming(AP_Arming::Method method) const
+{
+    return true;
+}
+
+// wp_distance - distance to active waypoint
+uint32_t modestar::wp_distance() const
+{
+    return wp_nav->get_wp_distance_to_destination();
+}
+
+// wp_bearing - bearing to next waypoint
+int32_t modestar::wp_bearing() const
+{
+    return wp_nav->get_wp_bearing_to_destination();
+}
+
+// crosstrack_error - horizontal error of the copter relative to the active track
+float modestar::crosstrack_error() const
+{
+    return wp_nav->crosstrack_error();
 }
 #endif

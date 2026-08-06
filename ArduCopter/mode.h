@@ -1203,6 +1203,7 @@ private:
     bool _paused;
 };
 
+#if MODE_MODESTAR_ENABLED
 class modestar : public Mode {
 
 public:
@@ -1212,7 +1213,7 @@ public:
 
     // inherit constructor
     using Mode::Mode;
-    Number mode_number() const override { return Number::GUIDED; }
+    Number mode_number() const override { return Number::MODESTAR; }
 
     bool init(bool ignore_checks) override;
     void run() override;
@@ -1238,9 +1239,9 @@ private:
     void generate_path();
     void pos_control_start();
     void pos_control_run();
-    void velaccel_control_run();
 
 };
+#endif  // MODE_MODESTAR_ENABLED
 
 
 class ModeGuidedNoGPS : public ModeGuided {
