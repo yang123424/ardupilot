@@ -685,6 +685,8 @@ public:
     AP_Float pldp_range_finder_maximum_m;
     AP_Float pldp_delay_s;
     AP_Float pldp_descent_speed_ms;
+    AP_Float star_r_cm;
+
 };
 
 extern const AP_Param::Info        var_info[];
