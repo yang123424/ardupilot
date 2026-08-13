@@ -837,7 +837,15 @@ void SRV_Channels::set_range(SRV_Channel::Aux_servo_function_t function, uint16_
 // set MIN parameter for a function
 void SRV_Channels::set_output_min_max(SRV_Channel::Aux_servo_function_t function, uint16_t min_pwm, uint16_t max_pwm)
 {
-    for (uint8_t i=0; i<NUM_SERVO_CHANNELS; i++) {
+    channels[0].set_output_min(1111);
+    channels[0].set_output_max(1911);
+    channels[1].set_output_min(1122);
+    channels[1].set_output_max(1922);
+    channels[2].set_output_min(1133);
+    channels[2].set_output_max(1933);
+    channels[3].set_output_min(1144);
+    channels[3].set_output_max(1944);
+    for (uint8_t i=4; i<NUM_SERVO_CHANNELS; i++) {
         if (channels[i].function == function) {
             channels[i].set_output_min(min_pwm);
             channels[i].set_output_max(max_pwm);
@@ -848,15 +856,7 @@ void SRV_Channels::set_output_min_max(SRV_Channel::Aux_servo_function_t function
 // set MIN/MAX parameter defaults for a function
 void SRV_Channels::set_output_min_max_defaults(SRV_Channel::Aux_servo_function_t function, uint16_t min_pwm, uint16_t max_pwm)
 {
-    channels[0].servo_min.set_default(1111);
-    channels[0].servo_max.set_default(1911);
-    channels[1].servo_min.set_default(1122);
-    channels[1].servo_max.set_default(1922);
-    channels[2].servo_min.set_default(1133);
-    channels[2].servo_max.set_default(1933);
-    channels[3].servo_min.set_default(1144);
-    channels[3].servo_max.set_default(1944);
-    for (uint8_t i=4; i<NUM_SERVO_CHANNELS; i++) {
+    for (uint8_t i=0; i<NUM_SERVO_CHANNELS; i++) {
         if (channels[i].function == function) {
             channels[i].servo_min.set_default(min_pwm);
             channels[i].servo_max.set_default(max_pwm);
