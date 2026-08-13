@@ -364,9 +364,9 @@ SRV_Channels::set_output_pwm_trimmed(SRV_Channel::Aux_servo_function_t function,
         if (channels[i].function == function) {
             int16_t value2;
             if (channels[i].get_reversed()) {
-                value2 = 1500 - value + channels[i].get_trim();
+                value2 = 1300 - value + channels[i].get_trim();
             } else {
-                value2 = value - 1500 + channels[i].get_trim();
+                value2 = value - 1300 + channels[i].get_trim();
             }
             channels[i].set_output_pwm(constrain_int16(value2,channels[i].get_output_min(),channels[i].get_output_max()));
             channels[i].output_ch();
