@@ -205,7 +205,7 @@ void AP_MotorsHeli_Swash::add_servo_raw(uint8_t num, float roll, float pitch, fl
     SRV_Channels::set_range(function, 1000);
 
     // swash servos always use full endpoints as restricting them would lead to scaling errors
-    SRV_Channels::set_output_min_max(function, 1000, 2000);
+    SRV_Channels::set_output_min_max(function, 800, 1500);
 
 }
 
