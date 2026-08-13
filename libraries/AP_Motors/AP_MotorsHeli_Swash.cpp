@@ -105,6 +105,10 @@ void AP_MotorsHeli_Swash::configure()
     enable.set(_swash_type == SWASHPLATE_TYPE_H3);
 
     calculate_roll_pitch_collective_factors();
+    SRV_Channels::set_trim_to_pwm_for(SRV_Channel::k_motor1, 1234);  // 舵机1 (SERVO1)
+    SRV_Channels::set_trim_to_pwm_for(SRV_Channel::k_motor2, 1234);  // 舵机2 (SERVO2)
+    SRV_Channels::set_trim_to_pwm_for(SRV_Channel::k_motor3, 1234);  // 舵机3 (SERVO3)
+
 }
 
 // CCPM Mixers - calculate mixing scale factors by swashplate type
