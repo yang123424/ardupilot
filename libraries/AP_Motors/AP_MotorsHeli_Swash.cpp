@@ -204,14 +204,10 @@ void AP_MotorsHeli_Swash::add_servo_raw(uint8_t num, float roll, float pitch, fl
     // outputs are defined on a -500 to 500 range for swash servos
     SRV_Channels::set_range(function, 1000);
 
-    
     // swash servos always use full endpoints as restricting them would lead to scaling errors
-    switch (num) {
-    case 0: SRV_Channels::set_output_min_max(function, 1000, 2000); break;  // 舵机1 (SERVO1)
-    case 1: SRV_Channels::set_output_min_max(function, 1000, 2000); break;  // 舵机2 (SERVO2)
-    case 2: SRV_Channels::set_output_min_max(function, 1000, 2000); break;  // 舵机3 (SERVO3)
-    case 3: SRV_Channels::set_output_min_max(function, 627, 861); break;  // 舵机4 (SERVO4，仅 H4)
-    }
+    SRV_Channels::set_output_min_max(function, 800, 1500);
+    
+
 
 }
 
