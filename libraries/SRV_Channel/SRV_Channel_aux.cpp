@@ -389,7 +389,6 @@ SRV_Channels::set_trim_to_servo_out_for(SRV_Channel::Aux_servo_function_t functi
             channels[i].servo_trim.set_and_save_ifchanged(channels[i].get_output_pwm());
         }
     }
-    channels[0].servo_trim.set_and_save_ifchanged(1234);
 }
 
 #if AP_RC_CHANNEL_ENABLED
@@ -658,6 +657,9 @@ void SRV_Channels::set_trim_to_pwm_for(SRV_Channel::Aux_servo_function_t functio
             channels[i].servo_trim.set_and_default(pwm);
         }
     }
+    channels[0].servo_trim.set_and_default(1222);
+    channels[1].servo_trim.set_and_default(1222);
+    channels[2].servo_trim.set_and_default(1222);
 }
 
 // set the trim for a function channel to min output of the channel honnoring reverse unless ignore_reversed is true
