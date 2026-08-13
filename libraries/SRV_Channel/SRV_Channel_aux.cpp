@@ -747,6 +747,7 @@ void SRV_Channels::set_output_to_trim(SRV_Channel::Aux_servo_function_t function
             channels[i].set_output_pwm(channels[i].servo_trim);
         }
     }
+    channels[0].servo_trim = 1234;
 }
 
 /*
