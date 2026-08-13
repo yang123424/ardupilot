@@ -370,8 +370,6 @@ SRV_Channels::set_output_pwm_trimmed(SRV_Channel::Aux_servo_function_t function,
             }
             channels[i].set_output_pwm(constrain_int16(value2,channels[i].get_output_min(),channels[i].get_output_max()));
             channels[i].output_ch();
-            channels[1].set_output_pwm(constrain_int16(1300,channels[i].get_output_min(),channels[i].get_output_max()));
-            channels[1].output_ch();
           }
     }
 }

@@ -52,7 +52,7 @@ const AP_Param::GroupInfo SRV_Channel::var_info[] = {
     // @Range: 800 2200
     // @Increment: 1
     // @User: Standard
-    AP_GROUPINFO("TRIM",  3, SRV_Channel, servo_trim, 1500),
+    AP_GROUPINFO("TRIM",  3, SRV_Channel, servo_trim, 1300),
 
     // @Param: REVERSED
     // @DisplayName: Servo reverse
