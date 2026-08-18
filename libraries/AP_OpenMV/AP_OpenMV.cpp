@@ -1,4 +1,6 @@
-#define 
+#define AP_SERIALMANAGER_OPEN_MV_BAUD 115200
+#define AP_SERIALMANAGER_OPEN_MV_BUFSIZE_RX 64 
+#define AP_SERIALMANAGER_OPEN_MV_BUFSIZE_TX 64
 
 
 #include "AP_OpenMV.h"
@@ -6,123 +8,74 @@
 
 extern const AP_HAL::HAL& hal;
 
-AP_OpenMV *AP_OpenMV::singleton;
 
-AP_OpenMV::AP_OpenMV()
+AP_OpenMV::AP_OpenMV(void)
 {
-    singleton = this;
-#if HAL_WITH_FRSKY_TELEM_BIDIRECTIONAL
-    _frsky_parameters = &AP::vehicle()->frsky_parameters;
-#endif //HAL_WITH_FRSKY_TELEM_BIDIRECTIONAL
+    _port = NULL;
+    _step = 0;
 }
 
-
-AP_OpenMV::~AP_OpenMV(void)
+void AP_OpenMV::init(const AP_SerialManager& serial_manager)
 {
-    singleton = nullptr;
+    if((_port = serial_manager.find_serial(AP_SerialManager::SerialProtocol_OPEN_MV, 0)) ) {
+        _port->set_flow_control(AP_HAL::UARTDriver::FLOW_CONTROL_DISABLE);
+        _port->begin(AP_SERIALMANAGER_OPEN_MV_BAUD, AP_SERIALMANAGER_OPEN_MV_BUFSIZE_RX, AP_SERIALMANAGER_OPEN_MV_BUFSIZE_TX);
+    }
 }
 
-/*
- * init - perform required initialisation
- */
-bool AP_OpenMV::init(bool use_external_data)
+bool AP_OpenMV::update(void)
 {
-    const AP_SerialManager &serial_manager = AP::serialmanager();
-
-    // check for protocol configured for a serial port - only the first serial port with one of these protocols will then run (cannot have FrSky on multiple serial ports)
-    AP_HAL::UARTDriver *port;
-    if ((port = serial_manager.find_serial(AP_SerialManager::SerialProtocol_FrSky_D, 0))) {
-#if AP_FRSKY_D_TELEM_ENABLED
-        _backend = NEW_NOTHROW AP_Frsky_D(port);
-#endif
-    } else if ((port = serial_manager.find_serial(AP_SerialManager::SerialProtocol_FrSky_SPort, 0))) {
-#if AP_FRSKY_SPORT_TELEM_ENABLED
-        _backend = NEW_NOTHROW AP_Frsky_SPort(port);
-#endif
-    } else if (use_external_data || (port = serial_manager.find_serial(AP_SerialManager::SerialProtocol_FrSky_SPort_Passthrough, 0))) {
-#if AP_FRSKY_SPORT_PASSTHROUGH_ENABLED
-        _backend = NEW_NOTHROW AP_Frsky_SPort_Passthrough(port, use_external_data, _frsky_parameters);
-#endif
-    }
-
-    if (_backend == nullptr) {
+    if(_port==NULL) {
         return false;
     }
+    int16_t numchar = _port->available();
+    uint8_t data;
+    uint8_t checksum = 0;
 
-    if (!_backend->init()) {
-        delete _backend;
-        _backend = nullptr;
-        return false;
-    }
+    for(int16_t i=0; i<numchar; i++) {
+        if(_port->read(data)) {
+        data=_port->read();
+        switch(_step){
+            case 0:
+            if(data==0xA5) {
+                _step=1;
+            }
+            break;
 
-    return true;
-}
+            case 1:
+            if(data==0x5A) {
+                _step=2;
+            } 
+            else {
+                _step=0;
+            }
+            break;
 
-bool AP_OpenMV::_get_telem_data(AP_Frsky_Backend::sport_packet_t* packet_array, uint8_t &packet_count, const uint8_t max_size)
-{
-    if (_backend == nullptr) {
-        return false;
-    }
-    if (packet_array == nullptr) {
-        return false;
-    }
-    return _backend->get_telem_data(packet_array, packet_count, max_size);
-}
+            case 2:
+            _cx_temp=data;
+            _step=3;
+            break;
 
-#if HAL_WITH_FRSKY_TELEM_BIDIRECTIONAL
-bool AP_OpenMV::_set_telem_data(uint8_t frame, uint16_t appid, uint32_t data)
-{
-    if (_backend == nullptr) {
-        return false;
-    }
-    return _backend->set_telem_data(frame, appid, data);
-}
-#endif
+            case 3:
+            _cy_temp=data;
+            _step=4;
+            break;
 
-void AP_OpenMV::try_create_singleton_for_external_data()
-{
-    // try to allocate an AP_OpenMV object only if we are disarmed
-    if (!singleton && !hal.util->get_soft_armed()) {
-        NEW_NOTHROW AP_OpenMV();
-        // initialize the passthrough scheduler
-        if (singleton) {
-            singleton->init(true);
+            case 4:
+            _step=0;
+            checksum =_cx_temp + _cy_temp;
+            if(checksum==data) {
+                cx = _cx_temp;
+                cy = _cy_temp;
+                last_frame_ms = AP_HAL::millis();
+            return true;
+            }
+            break;
+        default:
+            _step=0;
         }
+        
     }
-}
+    return false;
 
-/*
-  fetch Sport data for an external transport, such as FPort
- */
-bool AP_OpenMV::get_telem_data(AP_Frsky_Backend::sport_packet_t* packet_array, uint8_t &packet_count, const uint8_t max_size)
-{
-    try_create_singleton_for_external_data();
-    if (singleton == nullptr) {
-        return false;
-    }
-    return singleton->_get_telem_data(packet_array, packet_count, max_size);
 }
-
-#if HAL_WITH_FRSKY_TELEM_BIDIRECTIONAL
-/*
-  allow external transports (e.g. FPort), to supply telemetry data
- */
-bool AP_OpenMV::set_telem_data(const uint8_t frame, const uint16_t appid, const uint32_t data)
-{
-    try_create_singleton_for_external_data();
-    if (singleton == nullptr) {
-        return false;
-    }
-    return singleton->_set_telem_data(frame, appid, data);
-}
-#endif
-
-namespace AP
-{
-AP_OpenMV *frsky_telem()
-{
-    return AP_OpenMV::get_singleton();
-}
-};
-
-#endif  // AP_OpenMV_ENABLED

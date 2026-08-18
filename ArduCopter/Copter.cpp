@@ -259,6 +259,7 @@ const AP_Scheduler::Task Copter::scheduler_tasks[] = {
 #if HAL_BUTTON_ENABLED
     SCHED_TASK_CLASS(AP_Button,            &copter.button,              update,           5, 100, 168),
 #endif
+    SCHED_TASK(update_OpenMV,            400,    100,  166)
 };
 
 void Copter::get_scheduler_tasks(const AP_Scheduler::Task *&tasks,
@@ -563,6 +564,65 @@ void Copter::update_batt_compass(void)
         compass.set_voltage(battery.voltage());
         compass.read();
     }
+}
+
+void Copter::update_OpenMV(void)
+{
+   bool sim_openmv_new_data = false;
+   static uint32_t last_sim_new_data_time_ms = 0; 
+   if(control_mode != GUIDED){
+        last_sim_new_data_time_ms = millis();
+        openmv.cx = 80;
+        openmv.cy = 60;
+   }else if (millis() - last_sim_new_data_time_ms < 1500){
+        sim_openmv_new_data = true;
+        openmv.last_frame_ms = millis();
+        openmv.cx = 1;
+        openmv.cy = 1;
+   }else if (millis() - openmv.last_frame_ms < 3000){
+        sim_openmv_new_data = true;
+        openmv.last_frame_ms = millis();
+        openmv.cx = 80;
+        openmv.cy = 60;
+   }else {
+        sim_openmv_new_data = false;
+        openmv.cx = 80;
+        openmv.cy = 60;
+   }
+ 
+
+   static uint32_t last_set_pos_target_time_ms = 0;
+   Vector3f target = Vector3f(0, 0, 0);
+   if(openmv.update() || sim_openmv_new_data){
+    log_Write_OpenMV();
+
+    if(control_mode != GUIDED){
+        return;
+    }
+    int16_t target_body_frame_y = (int16_t)openmv.cx - 80;
+    int16_t target_body_frame_z = (int16_t)openmv.cy - 60;
+    float angle_y_deg = target_body_frame_y * 60.0f / 160.0f;
+    float angle_z_deg = target_body_frame_z * 60.0f / 120.0f;
+
+    Vector3f v = Vector3f(1.0f, tanf(radians(angle_y_deg)), tanf(radians(angle_z_deg)));
+    v=v/v.length();
+
+    const Matrix3f &rotMat = copter.ahrs.get_rotation_body_to_ned();
+    v=rotMat*v;
+
+    target = v*1000.0f;
+
+    target.z= -target.z;
+
+    Vector3f current_pos = inertial_nav.get_position();
+    target = target + current_pos;
+
+    if(millis() - last_set_pos_target_time_ms > 500){
+        mode_guided.set_destination(target, false, 0,true,0,false);
+        last_set_pos_target_time_ms = millis();
+    }
+    
+   }
 }
 
 #if HAL_LOGGING_ENABLED
