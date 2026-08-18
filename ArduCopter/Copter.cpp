@@ -767,6 +767,10 @@ void Copter::one_hz_loop()
         // set all throttle channel settings
         motors->update_throttle_range();
 #endif
+    gcs().send_text(MAV_SEVERITY_CRITICAL,
+                    "OpenMV X: %d Y: %d", 
+                    openmv.cx,
+                     openmv.cy);
     }
 
     // update assigned functions and enable auxiliary servos
@@ -789,6 +793,7 @@ void Copter::one_hz_loop()
 #if AC_CUSTOMCONTROL_MULTI_ENABLED
     custom_control.set_notch_sample_rate(AP::scheduler().get_filtered_loop_rate_hz());
 #endif
+
 }
 
 void Copter::init_simple_bearing()
