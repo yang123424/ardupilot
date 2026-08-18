@@ -570,7 +570,7 @@ void Copter::update_OpenMV(void)
 {
    bool sim_openmv_new_data = false;
    static uint32_t last_sim_new_data_time_ms = 0; 
-   if(control_mode != GUIDED){
+   if(flightmode->mode_number() != Mode::Number::GUIDED){
         last_sim_new_data_time_ms = millis();
         openmv.cx = 80;
         openmv.cy = 60;
@@ -594,9 +594,9 @@ void Copter::update_OpenMV(void)
    static uint32_t last_set_pos_target_time_ms = 0;
    Vector3f target = Vector3f(0, 0, 0);
    if(openmv.update() || sim_openmv_new_data){
-    log_Write_OpenMV();
+   
 
-    if(control_mode != GUIDED){
+    if(flightmode->mode_number() != Mode::Number::GUIDED){
         return;
     }
     int16_t target_body_frame_y = (int16_t)openmv.cx - 80;
@@ -614,7 +614,7 @@ void Copter::update_OpenMV(void)
 
     target.z= -target.z;
 
-    Vector3f current_pos = inertial_nav.get_position();
+    Vector3f current_pos = inertial_nav.get_position_neu_cm();
     target = target + current_pos;
 
     if(millis() - last_set_pos_target_time_ms > 500){

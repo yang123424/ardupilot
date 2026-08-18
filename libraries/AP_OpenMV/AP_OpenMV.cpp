@@ -13,11 +13,12 @@ AP_OpenMV::AP_OpenMV(void)
 {
     _port = NULL;
     _step = 0;
+    last_frame_ms = 0;
 }
 
 void AP_OpenMV::init(const AP_SerialManager& serial_manager)
 {
-    if((_port = serial_manager.find_serial(AP_SerialManager::SerialProtocol_OPEN_MV, 0)) ) {
+    if((_port = serial_manager.find_serial(AP_SerialManager::SerialProtocol_OpenMV, 0)) ) {
         _port->set_flow_control(AP_HAL::UARTDriver::FLOW_CONTROL_DISABLE);
         _port->begin(AP_SERIALMANAGER_OPEN_MV_BAUD, AP_SERIALMANAGER_OPEN_MV_BUFSIZE_RX, AP_SERIALMANAGER_OPEN_MV_BUFSIZE_TX);
     }
@@ -74,8 +75,7 @@ bool AP_OpenMV::update(void)
         default:
             _step=0;
         }
-        
+        } 
     }
     return false;
-
 }

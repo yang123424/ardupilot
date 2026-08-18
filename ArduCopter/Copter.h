@@ -24,7 +24,6 @@
 #include <cmath>
 #include <stdio.h>
 #include <stdarg.h>
-
 #include <AP_HAL/AP_HAL.h>
 
 // Common dependencies
@@ -76,6 +75,8 @@
 // Configuration
 #include "defines.h"
 #include "config.h"
+
+#include <AP_OpenMV/AP_OpenMV.h>
 
 #if FRAME_CONFIG == HELI_FRAME
  #define MOTOR_CLASS AP_MotorsHeli
@@ -312,6 +313,9 @@ private:
 #if AP_OPTICALFLOW_ENABLED
     AP_OpticalFlow optflow;
 #endif
+
+    // OpenMV camera
+    AP_OpenMV openmv;
 
     // external control library
 #if AP_EXTERNAL_CONTROL_ENABLED

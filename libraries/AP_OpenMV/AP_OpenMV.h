@@ -30,6 +30,7 @@ public:
 
  bool update(void);
   uint8_t cx, cy;
+  uint32_t last_frame_ms;     // system time of last valid frame from camera
 
 private:
 

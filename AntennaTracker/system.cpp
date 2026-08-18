@@ -19,6 +19,8 @@ void Tracker::init_ardupilot()
 
     // setup telem slots with serial ports
     gcs().setup_uarts();
+
+    openmv.init(serial_manager);
     // update_send so that if the first packet we receive happens to
     // be an arm message we don't trigger an internal error when we
     // try to initialise stream rates in the main loop.
