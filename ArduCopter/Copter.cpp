@@ -566,28 +566,28 @@ void Copter::update_batt_compass(void)
     }
 }
 
+
 void Copter::update_OpenMV(void)
 {
    bool sim_openmv_new_data = false;
    static uint32_t last_sim_new_data_time_ms = 0; 
    if(flightmode->mode_number() != Mode::Number::GUIDED){
         last_sim_new_data_time_ms = millis();
-        openmv.cx = 80;
-        openmv.cy = 60;
-   }else if (millis() - last_sim_new_data_time_ms < 1500){
+        openmv.cx = 80;//为了方便SITL人工定义cx和cy的值
+        openmv.cy = 60;//为了方便SITL人工定义cx和cy的值
+   }else if (millis() - last_sim_new_data_time_ms < 10000){
         sim_openmv_new_data = true;
         openmv.last_frame_ms = millis();
-        openmv.cx = 1;
-        openmv.cy = 1;
-   }else if (millis() - openmv.last_frame_ms < 3000){
+        openmv.cx = 1;//为了方便SITL人工定义cx和cy的值
+        openmv.cy = 1;//为了方便SITL人工定义cx和cy的值
+   }else if (millis() - openmv.last_frame_ms < 10000){
         sim_openmv_new_data = true;
-        openmv.last_frame_ms = millis();
-        openmv.cx = 160;
-        openmv.cy = 120;
+        openmv.cx = 160;//为了方便SITL人工定义cx和cy的值
+        openmv.cy = 120;//为了方便SITL人工定义cx和cy的值
    }else {
         sim_openmv_new_data = false;
-        openmv.cx = 80;
-        openmv.cy = 60;
+        openmv.cx = 80;//为了方便SITL人工定义cx和cy的值
+        openmv.cy = 60;//为了方便SITL人工定义cx和cy的值
    }
  
 
