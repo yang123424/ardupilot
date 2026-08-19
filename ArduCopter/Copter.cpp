@@ -259,7 +259,7 @@ const AP_Scheduler::Task Copter::scheduler_tasks[] = {
 #if HAL_BUTTON_ENABLED
     SCHED_TASK_CLASS(AP_Button,            &copter.button,              update,           5, 100, 168),
 #endif
-    SCHED_TASK(update_OpenMV,            400,    100,  166)
+    SCHED_TASK(update_OpenMV,            400,    100,  171)
 };
 
 void Copter::get_scheduler_tasks(const AP_Scheduler::Task *&tasks,
@@ -594,7 +594,7 @@ void Copter::update_OpenMV(void)
    static uint32_t last_set_pos_target_time_ms = 0;
    Vector3f target = Vector3f(0, 0, 0);
    if(openmv.update() || sim_openmv_new_data){
-   
+    Log_Write_OpenMV();
 
     if(flightmode->mode_number() != Mode::Number::GUIDED){
         return;

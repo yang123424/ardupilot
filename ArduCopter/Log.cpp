@@ -339,6 +339,24 @@ struct PACKED log_Guided_Attitude_Target {
     float climb_rate;
 };
 
+
+struct PACKED log_OpenMV {
+    LOG_PACKET_HEADER;
+    uint64_t time_us;
+    uint8_t cx;
+    uint8_t cy;
+};
+
+void Copter::Log_Write_OpenMV()
+{
+    struct log_OpenMV pkt= {
+        LOG_PACKET_HEADER_INIT(LOG_OPENMV_MSG),
+        time_us : AP_HAL::micros64(),
+        cx      : openmv.cx,
+        cy      : openmv.cy
+    };
+    logger.WriteBlock(&pkt, sizeof(pkt));
+}
 // Write a Guided mode position target
 // pos_target is lat, lon, alt OR offset from ekf origin in cm
 // terrain should be 0 if pos_target.z is alt-above-ekf-origin, 1 if alt-above-terrain
@@ -403,6 +421,9 @@ const struct LogStructure Copter::log_structure[] = {
 
     { LOG_PARAMTUNE_MSG, sizeof(log_ParameterTuning),
       "PTUN", "QBfff",         "TimeUS,Param,TunVal,TunMin,TunMax", "s----", "F----" },
+
+    { LOG_OPENMV_MSG, sizeof(log_OpenMV),
+      "OPMV", "QBB",         "TimeUS,Cx,Cy", "s--", "F--" },
 
 // @LoggerMessage: CTUN
 // @Description: Control Tuning information
