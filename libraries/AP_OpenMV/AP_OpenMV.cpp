@@ -35,7 +35,6 @@ bool AP_OpenMV::update(void)
 
     for(int16_t i=0; i<numchar; i++) {
         if(_port->read(data)) {
-        data=_port->read();
         switch(_step){
             case 0:
             if(data==0xA5) {
@@ -64,7 +63,7 @@ bool AP_OpenMV::update(void)
 
             case 4:
             _step=0;
-            checksum =_cx_temp + _cy_temp;
+            checksum = (uint8_t)(_cx_temp + _cy_temp);
             if(checksum==data) {
                 cx = _cx_temp;
                 cy = _cy_temp;

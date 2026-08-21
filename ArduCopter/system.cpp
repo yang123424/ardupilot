@@ -37,6 +37,9 @@ void Copter::init_ardupilot()
     // setup telem slots with serial ports
     gcs().setup_uarts();
 
+    // init OpenMV camera (serial protocol 50)
+    openmv.init(AP::serialmanager());
+
 #if OSD_ENABLED
     osd.init();
 #endif

@@ -569,7 +569,8 @@ void Copter::update_batt_compass(void)
 
 void Copter::update_OpenMV(void)
 {
-   bool sim_openmv_new_data = false;
+    /*
+  bool sim_openmv_new_data = false;
    static uint32_t last_sim_new_data_time_ms = 0; 
    if(flightmode->mode_number() != Mode::Number::GUIDED){
         last_sim_new_data_time_ms = millis();
@@ -578,33 +579,33 @@ void Copter::update_OpenMV(void)
    }else if (millis() - last_sim_new_data_time_ms < 10000){
         sim_openmv_new_data = true;
         openmv.last_frame_ms = millis();
-        openmv.cx = 1;//为了方便SITL人工定义cx和cy的值
+        openmv.cx = 80;//为了方便SITL人工定义cx和cy的值
         openmv.cy = 1;//为了方便SITL人工定义cx和cy的值
    }else if (millis() - openmv.last_frame_ms < 10000){
         sim_openmv_new_data = true;
-        openmv.cx = 160;//为了方便SITL人工定义cx和cy的值
-        openmv.cy = 120;//为了方便SITL人工定义cx和cy的值
-   }else {
-        sim_openmv_new_data = false;
         openmv.cx = 80;//为了方便SITL人工定义cx和cy的值
         openmv.cy = 60;//为了方便SITL人工定义cx和cy的值
-   }
- 
+   }else {
+        sim_openmv_new_data = true;
+        openmv.cx = 1;//为了方便SITL人工定义cx和cy的值
+        openmv.cy = 60;//为了方便SITL人工定义cx和cy的值
+   } 
+ */
 
    static uint32_t last_set_pos_target_time_ms = 0;
    Vector3f target = Vector3f(0, 0, 0);
-   if(openmv.update() || sim_openmv_new_data){
+   if(openmv.update()){
         Log_Write_OpenMV();
 
         if(flightmode->mode_number() != Mode::Number::GUIDED){
             return;
         }
         int16_t target_body_frame_y = (int16_t)openmv.cx - 80;
-        int16_t target_body_frame_z = (int16_t)openmv.cy - 60;
-        float angle_y_deg = target_body_frame_y * 60.0f / 160.0f;
-        float angle_z_deg = target_body_frame_z * 60.0f / 120.0f;
+        int16_t target_body_frame_x =  60 - (int16_t)openmv.cy;
+        //float angle_y_deg = target_body_frame_x * 60.0f / 160.0f;
+        //float angle_x_deg = target_body_frame_y * 60.0f / 120.0f;
 
-        Vector3f v = Vector3f(1.0f, tanf(radians(angle_y_deg)), tanf(radians(angle_z_deg)));
+        Vector3f v = Vector3f(target_body_frame_x, target_body_frame_y, 1.0f);
         v=v/v.length();
 
         const Matrix3f &rotMat = copter.ahrs.get_rotation_body_to_ned();
@@ -612,7 +613,7 @@ void Copter::update_OpenMV(void)
 
         target = v*1000.0f;
 
-        target.z= -target.z;
+        //target.z= -target.z;
 
         Vector3f current_pos = inertial_nav.get_position_neu_cm();
         target = target + current_pos;
@@ -770,9 +771,9 @@ void Copter::one_hz_loop()
  
     }
    gcs().send_text(MAV_SEVERITY_CRITICAL,
-                    "OpenMV X: %d Y: %d", 
-                    openmv.cx,
-                     openmv.cy);
+                    "tag X: %d Y: %d", 
+                    60-openmv.cy,
+                     openmv.cx-80);
     // update assigned functions and enable auxiliary servos
     AP::srv().enable_aux_servos();
 
